@@ -79,16 +79,13 @@ class Redis
 
       def handle_errors
         yield
-      rescue RedisClient::Cluster::ErrorCollection => error
+      rescue RedisClient::Cluster::ErrorCollection, ::RedisClient::Error => error
         error.errors.each do |_node, node_error|
           if node_error.is_a?(RedisClient::AuthenticationError)
             raise ERROR_MAPPING.fetch(node_error.class), node_error.message, node_error.backtrace
           end
         end
         raise ERROR_MAPPING.fetch(error.class), error.message, error.backtrace
-      rescue ::RedisClient::Error => error
-        raise ERROR_MAPPING.fetch(error.class), error.message, error.backtrace
-      end
     end
   end
 end
